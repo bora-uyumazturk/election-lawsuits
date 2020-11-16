@@ -45,7 +45,6 @@ StateGrid.prototype.initLabels = function () {
 }
 
 StateGrid.prototype.update = function (data) {
-  console.log(data);
   var g = this.svg.g;
 
   // get index within group for placement

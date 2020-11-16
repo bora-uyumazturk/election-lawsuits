@@ -10,6 +10,7 @@ function getCaseStates(data, date) {
    .groupBy('case_id')
    .map((x) => {return x[x.length - 1];})
    .flatten()
+   .orderBy(['date'], ['desc'])
    .value()
 }
 
