@@ -1,6 +1,6 @@
 const data_address = 'https://raw.githubusercontent.com/bora-uyumazturk/election-lawsuits/main/data/sample_data.csv';
 
-const width = 500;
+const width = 200;
 const height = 300;
 
 function getCaseStates(data, date) {

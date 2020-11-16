@@ -3,6 +3,7 @@ StateGrid = function(_parentElement, width, height) {
   this.width = width;
   this.height = height;
   this.margin_top = 50;
+  this.margin_left = 150;
   this.r = 5;
   this.pad = 2;
   this.initVis();
@@ -16,6 +17,14 @@ StateGrid.prototype.initVis = function () {
   this.fillScale = d3.scaleOrdinal()
     .domain(["Denied", "Appealed", "Complaint Filed"])
     .range(["#FF006B", "#eef086", "#33CCCC"]);
+
+  this.layout = gridLayout(
+    this.width - this.margin_left,
+    2*this.r,
+    2*this.r,
+    this.pad,
+    this.pad
+  )
 
   var vis = this;
 
@@ -75,11 +84,17 @@ StateGrid.prototype.update = function (data) {
     .transition()
     // TODO: modify both x and y positions for when
     // there are more elements
+    // .attr('cx', (d) => {
+    //   return this.margin_left + groupId[d.case_id]*2*(this.r + this.pad);
+    // })
+    // .attr('cy', (d) => {
+    //   return this.yScale(d.action);
+    // })
     .attr('cx', (d) => {
-      return 150 + groupId[d.case_id]*2*(this.r + this.pad);
+      return this.margin_left + this.layout.x(groupId[d.case_id]);
     })
     .attr('cy', (d) => {
-      return this.yScale(d.action);
+      return this.yScale(d.action) + this.layout.y(groupId[d.case_id]);
     })
     .attr('fill', (d) => {
       return this.fillScale(d.action);
@@ -92,6 +107,23 @@ StateGrid.prototype.update = function (data) {
 
     u.exit()
       .remove();
+}
+
+// return function computing x and y position for
+// item given index
+function gridLayout(width, itemWidth, itemHeight, horizontalPadding, verticalPadding) {
+  let itemsPerRow = Math.trunc( width / (itemWidth + horizontalPadding) )
+
+  return {
+    x: function(index) {
+      var col = index % itemsPerRow;
+      return (itemWidth + horizontalPadding)*col;
+    },
+    y: function(index) {
+      var row = Math.trunc(index / itemsPerRow);
+      return (itemHeight + verticalPadding)*row;
+    }
+  }
 }
 
 function getIndexWithinGroup(data) {
