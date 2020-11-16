@@ -70,8 +70,10 @@ StateGrid.prototype.initLabels = function () {
     })
     .text((d) => {
       return d;
-    });
-
+    })
+    .style('opacity', 0.0)
+    .transition()
+    .style('opacity', 1.0);
 }
 
 
