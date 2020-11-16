@@ -1,6 +1,6 @@
 const data_address = 'https://raw.githubusercontent.com/bora-uyumazturk/election-lawsuits/main/data/sample_data.csv';
 
-const width = 500;
+const width = 200;
 const height = 300;
 
 function getCaseStates(data, date) {
@@ -10,6 +10,7 @@ function getCaseStates(data, date) {
    .groupBy('case_id')
    .map((x) => {return x[x.length - 1];})
    .flatten()
+   .orderBy(['date'], ['desc'])
    .value()
 }
 
