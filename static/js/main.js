@@ -50,7 +50,7 @@ function main() {
       graph.update(getCaseStates(lawsuitData, curDate));
 
       i++;
-      if (i > 15) {
+      if (i > 17) {
         clearInterval(interval);
       }
     }, 1000);
