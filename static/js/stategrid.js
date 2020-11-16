@@ -3,18 +3,18 @@ StateGrid = function(_parentElement, width, height) {
   this.width = width;
   this.height = height;
   this.margin_top = 50;
-  this.r = 10;
+  this.r = 5;
   this.pad = 2;
   this.initVis();
 }
 
 StateGrid.prototype.initVis = function () {
   this.yScale = d3.scaleBand()
-    .domain(["Denied", "Appeal", "Complaint"])
+    .domain(["Denied", "Appealed", "Complaint Filed"])
     .range([this.height + this.margin_top, this.margin_top]);
 
   this.fillScale = d3.scaleOrdinal()
-    .domain(["Denied", "Appeal", "Complaint"])
+    .domain(["Denied", "Appealed", "Complaint Filed"])
     .range(["#FF006B", "#eef086", "#33CCCC"]);
 
   var vis = this;
@@ -32,7 +32,7 @@ StateGrid.prototype.initVis = function () {
 StateGrid.prototype.initLabels = function () {
   // init labels
   this.svg.g.selectAll("text")
-    .data(["Denied", "Appeal", "Complaint"])
+    .data(["Denied", "Appealed", "Complaint Filed"])
     .enter()
     .append("text")
     .attr("x", 0)
@@ -48,20 +48,8 @@ StateGrid.prototype.update = function (data) {
   console.log(data);
   var g = this.svg.g;
 
-  // get index within group
-  var groupId = {};
-  var groupCounter = {
-    'Denied': 0,
-    'Appeal': 0,
-    'Complaint': 0
-  }
-
-  for (var i = 0; i < data.length; i++) {
-    var group = data[i].action;
-    groupId[data[i].case_id] = groupCounter[data[i].action]
-    groupCounter[data[i].action] += 1;
-  }
-
+  // get index within group for placement
+  groupId = getIndexWithinGroup(data);
 
   // enter => update => exit
   var u = g.selectAll('circle')
@@ -105,5 +93,21 @@ StateGrid.prototype.update = function (data) {
 
     u.exit()
       .remove();
+}
 
+function getIndexWithinGroup(data) {
+  var groupId = {};
+  var groupCounter = {
+    'Denied': 0,
+    'Appealed': 0,
+    'Complaint Filed': 0
+  }
+
+  for (var i = 0; i < data.length; i++) {
+    var group = data[i].action;
+    groupId[data[i].case_id] = groupCounter[data[i].action]
+    groupCounter[data[i].action] += 1;
+  }
+
+  return groupId;
 }
