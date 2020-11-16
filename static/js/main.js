@@ -1,7 +1,9 @@
 const data_address = 'https://raw.githubusercontent.com/bora-uyumazturk/election-lawsuits/main/data/sample_data.csv';
 
-const width = 200;
-const height = 300;
+const width = 1000;
+const height = 500;
+const margin_left = 50;
+const margin_top = 80;
 
 function getCaseStates(data, date) {
   // get last sate of all cases before given date
@@ -24,10 +26,14 @@ function main() {
 
     let lawsuitData = allData[0];
 
-    let dateLabel = new DateLabel('#date-label');
-    let graph = new StateGrid('#chart-area', width, height);
+    let dateLabel = new DateLabel('#date-label',
+      margin_left-10,
+      10);
+    let graph = new StateGrid('#chart-area',
+      width, height,
+      margin_left, margin_top);
 
-    var i = 4;
+    var i = 3;
     var dateStr;
     var curDate;
 
@@ -44,7 +50,7 @@ function main() {
       graph.update(getCaseStates(lawsuitData, curDate));
 
       i++;
-      if (i > 14) {
+      if (i > 15) {
         clearInterval(interval);
       }
     }, 1000);
