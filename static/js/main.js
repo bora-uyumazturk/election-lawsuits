@@ -6,7 +6,7 @@ const height = 300;
 function getCaseStates(data, date) {
   // get last sate of all cases before given date
   return _.chain(data)
-   .filter((x) => {return x.Date <= date;})
+   .filter((x) => {return x.date <= date;})
    .groupBy('case_id')
    .map((x) => {return x[x.length - 1];})
    .flatten()
