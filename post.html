@@ -7,13 +7,49 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:700,500' rel='stylesheet' type='text/css'>
 </head>
 <body>
-  <div id='date-label'></div>
-  <div id='chart-area' style="width:100%;"></div>
+  <main>
+    <section id='intro'>
+      <div>
+        <p class='intro__dek'>
+          Here is my introduction.
+        </p>
+      </div>
+    </section>
+
+    <section id='scrolly'>
+
+      <article>
+        <div class='spacer'></div>
+        <div class='step' data-step='1'>
+          <p>Hi, here is some initial information.</p>
+        </div>
+        <div class='step' data-step='2'>
+          <p>Here's a breakdown of another aspect of the data.</p>
+        </div>
+        <div class='step' data-step='3'>
+          <p>Yet another way of slicing the data.</p>
+        </div>
+        <div class='step last-child' data-step='4'>
+          <p>And a final view takes us to the conclusion.</p>
+        </div>
+      </article>
+
+      <figure>
+        <div id='date-label'></div>
+        <div id='chart-area' style="width:100%;"></div>
+      </figure>
+
+
+    </section>
+  </main>
   <!-- External JS Libraries -->
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+  <script src="https://unpkg.com/intersection-observer"></script>
+  <script src="https://unpkg.com/scrollama"></script>
 
   <!-- Custom JS -->
+  <script type='text/javascript' src="static/js/scroll-utils.js"></script>
   <script type="text/javascript" src="static/js/stategrid.js"></script>
   <script type="text/javascript" src="static/js/datelabel.js"></script>
   <script type="text/javascript" src="static/js/main.js"></script>
