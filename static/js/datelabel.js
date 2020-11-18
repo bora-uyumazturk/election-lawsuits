@@ -10,6 +10,7 @@ DateLabel.prototype.initVis = function () {
     .style("position", "relative")
     .style("left", this.margin_left + "px")
     .style("top", this.margin_top + "px")
+    .style("opacity", 0.0)
     .text(`Date: `);
 }
 
