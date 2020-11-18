@@ -2,14 +2,14 @@ const data_address = 'https://raw.githubusercontent.com/bora-uyumazturk/election
 
 const width = 700;
 const height = 500;
-const margin_left = 50;
-const margin_top = 80;
+const margin_left = 200;
+const margin_top = 40;
 
 let graph;
 let dateLabel;
 
 let stepFunctions = [];
-let interval;
+// let interval;
 
 function getCaseStates(data, date) {
   // get last sate of all cases before given date
@@ -22,29 +22,48 @@ function getCaseStates(data, date) {
    .value()
 }
 
-function startAnimation(data) {
-  var i = 3;
-  var dateStr;
-  var curDate;
-
-  interval = setInterval(() => {
-    // get date string
-    dateStr = `${i}`;
-    if (i < 10) {
-      dateStr = `0${i}`;
-    }
-    curDate = `2020-11-${dateStr}`;
-
-    // update visuals
-    dateLabel.update(curDate);
-    graph.update(getCaseStates(data, curDate));
-
-    i++;
-    if (i > 17) {
-      clearInterval(interval);
-    }
-  }, 1000);
+function getEachCaseStart(data) {
+  // get first instance of each case
+  return _.chain(data)
+    .orderBy(['date'], ['asc'])
+    .groupBy('case_id')
+    .map((x) => {return x[0]})
+    .flatten()
+    .value();
 }
+
+function getDistinctStates(data) {
+  console.log(data);
+  return _.chain(data)
+    .orderBy(['state'], ['desc'])
+    .map((x) => {return x.state;})
+    .uniq()
+    .value()
+}
+
+// function startAnimation(data) {
+//   var i = 3;
+//   var dateStr;
+//   var curDate;
+//
+//   interval = setInterval(() => {
+//     // get date string
+//     dateStr = `${i}`;
+//     if (i < 10) {
+//       dateStr = `0${i}`;
+//     }
+//     curDate = `2020-11-${dateStr}`;
+//
+//     // update visuals
+//     dateLabel.update(curDate);
+//     graph.update(getCaseStates(data, curDate));
+//
+//     i++;
+//     if (i > 17) {
+//       clearInterval(interval);
+//     }
+//   }, 1000);
+// }
 
 function handleStepEnter(response) {
   console.log(response);
@@ -90,16 +109,26 @@ function main() {
 
     let lawsuitData = allData[0];
 
-    dateLabel = new DateLabel('#date-label',
-      margin_left-10,
-      10);
+    //dateLabel = new DateLabel('#date-label',
+    // margin_left-10,
+    //   10);
     graph = new StateGrid('#chart-area',
       width, height,
       margin_left, margin_top);
 
+    // set functions that should run on each step
     stepFunctions[0] = function() {
-      clearInterval(interval);
-      startAnimation(lawsuitData);
+      graph.updateLabels([
+        {category: 'Complaint Filed', label: 'Complaints Filed'},
+      ]);
+      graph.update(getEachCaseStart(lawsuitData), 2000);
+    };
+
+    stepFunctions[1] = function() {
+      states = getDistinctStates(lawsuitData);
+      graph.initStateScale(states);
+      graph.initStateLabels();
+      graph.update(getEachCaseStart(lawsuitData), 2000, true, true);
     }
 
     initScroller();
