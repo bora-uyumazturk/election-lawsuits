@@ -1,8 +1,8 @@
 const data_address = 'https://raw.githubusercontent.com/bora-uyumazturk/election-lawsuits/main/data/sample_data.csv';
 
-const width = 700;
+const width = 1000;
 const height = 500;
-const margin_left = 200;
+const margin_left = 150;
 const margin_top = 40;
 
 let graph;
@@ -26,6 +26,15 @@ function getEachCaseStart(data) {
   // get first instance of each case
   return _.chain(data)
     .orderBy(['date'], ['asc'])
+    .groupBy('case_id')
+    .map((x) => {return x[0]})
+    .flatten()
+    .value();
+}
+
+function getEachCaseEnd(data) {
+  return _.chain(data)
+    .orderBy(['date'], ['desc'])
     .groupBy('case_id')
     .map((x) => {return x[0]})
     .flatten()
@@ -121,14 +130,25 @@ function main() {
       graph.updateLabels([
         {category: 'Complaint Filed', label: 'Complaints Filed'},
       ]);
-      graph.update(getEachCaseStart(lawsuitData), 2000);
+      graph.update(getEachCaseStart(lawsuitData), 2000, ['action']);
     };
 
     stepFunctions[1] = function() {
       states = getDistinctStates(lawsuitData);
       graph.initStateScale(states);
       graph.initStateLabels();
-      graph.update(getEachCaseStart(lawsuitData), 2000, true, true);
+      graph.update(getEachCaseStart(lawsuitData), 2000, ['action'], true, true);
+    }
+
+    stepFunctions[2] = function() {
+      graph.updateLabels([
+        {category: 'Complaint Filed', label: 'Complaints Filed'},
+        {category: 'Denied', label: 'Denied'},
+        {category: 'Appealed', label: 'Appealed'},
+        {category: 'Won', label: 'Won'}
+      ]);
+      graph.update(getEachCaseEnd(lawsuitData), 2000, ['action', 'state'],
+        true, true);
     }
 
     initScroller();
