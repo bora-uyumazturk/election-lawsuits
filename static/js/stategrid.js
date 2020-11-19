@@ -121,13 +121,13 @@ StateGrid.prototype.updateLabels = function (labels) {
 
 
 StateGrid.prototype.update = function (
-  data, duration,state=false, nodelay=false
+  data, duration, state=false, nodelay=false
 ) {
   var g = this.svg;
 
   // get index within group for placement
   console.log(this.lawsuitStates);
-  var groupId = getIndexWithinGroup(data, this.lawsuitStates, 'action');
+  var groupId = getIndexWithinGroup(data, ['action']);
   console.log(groupId);
 
   // enter => update => exit
@@ -210,18 +210,20 @@ function gridLayout(width, itemWidth, itemHeight, horizontalPadding, verticalPad
   }
 }
 
-function getIndexWithinGroup(data, groups, key) {
-  var groupId = {};
-  var groupCounter = {}
-  for (const elem of groups) {
-    groupCounter[elem] = 0;
-  }
-  console.log(groupCounter);
+function getIndexWithinGroup(data, keys) {
+  var result = {};
 
-  for (var i = 0; i < data.length; i++) {
-    var group = data[i][key];
-    groupId[data[i].case_id] = groupCounter[data[i][key]]
-    groupCounter[data[i][key]] += 1;
+  var keyFunction = (d) => {
+    return keys.map((k) => d[k]);
+  };
+
+  var grouped = _.groupBy(data, keyFunction);
+
+  for (const idList of Object.values(grouped)) {
+    for (var i = 0; i < idList.length; i++) {
+      result[idList[i].case_id] = i;
+    }
   }
-  return groupId;
+
+  return result;
 }
