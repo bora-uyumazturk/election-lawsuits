@@ -1,8 +1,9 @@
 const boxWidth = 80;
-const r = 5;
+const r = 6;
 const pad = 4;
 const horizontalGap = 200;
 const verticalGap = 100;
+
 
 StateGrid = function(_parentElement, width, height, margin_left, margin_top) {
   this.parentElement = _parentElement;
@@ -17,6 +18,7 @@ StateGrid = function(_parentElement, width, height, margin_left, margin_top) {
   this.verticalGap = verticalGap;
   this.initVis();
 }
+
 
 StateGrid.prototype.initVis = function () {
   this.lawsuitStates = ["Denied", "Won", "Appealed", "Complaint Filed"];
@@ -57,6 +59,7 @@ StateGrid.prototype.initVis = function () {
     .attr("transform", `translate(0, ${this.margin_top - 40})`);
 }
 
+
 StateGrid.prototype.initStateScale = function (states) {
   this.states = states;
   console.log(states);
@@ -69,6 +72,7 @@ StateGrid.prototype.initStateScale = function (states) {
     .domain(states)
     .range(yRanges);
 }
+
 
 StateGrid.prototype.initStateLabels = function () {
   // init labels
@@ -95,13 +99,13 @@ StateGrid.prototype.initStateLabels = function () {
     .style('opacity', 1.0);
 }
 
+
 StateGrid.prototype.updateLabels = function (labels) {
   // each label is an objects with keys
   // category and label
 
   // init labels
   this.svg.g.selectAll("text")
-    // .data(["Denied", "Won", "Appealed", "Complaint Filed"])
     .data(labels)
     .enter()
     .append("text")
@@ -121,13 +125,12 @@ StateGrid.prototype.updateLabels = function (labels) {
 
 
 StateGrid.prototype.update = function (
-  data, duration, state=false, nodelay=false
+  data, duration, groupKeys=['action'], state=false, nodelay=false
 ) {
   var g = this.svg;
 
   // get index within group for placement
-  console.log(this.lawsuitStates);
-  var groupId = getIndexWithinGroup(data, ['action']);
+  var groupId = getIndexWithinGroup(data, groupKeys);
   console.log(groupId);
 
   // enter => update => exit
@@ -209,6 +212,7 @@ function gridLayout(width, itemWidth, itemHeight, horizontalPadding, verticalPad
     }
   }
 }
+
 
 function getIndexWithinGroup(data, keys) {
   var result = {};
