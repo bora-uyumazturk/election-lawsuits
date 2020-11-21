@@ -57,6 +57,15 @@ StateGrid.prototype.initVis = function () {
 
   vis.svg.g = vis.svg.append("g")
     .attr("transform", `translate(0, ${this.margin_top - 40})`);
+
+  // initialize tooltip
+  this.tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .html((e, d) => {
+    return d.case_name;
+  })
+
+  this.svg.call(this.tip);
 }
 
 
@@ -131,7 +140,6 @@ StateGrid.prototype.update = function (
 
   // get index within group for placement
   var groupId = getIndexWithinGroup(data, groupKeys);
-  console.log(groupId);
 
   // enter => update => exit
   var u = g.selectAll('circle')
@@ -158,6 +166,8 @@ StateGrid.prototype.update = function (
       return this.fillScale(d.action);
     })
     .attr('stroke-opacity', 0.0)
+    .on('mouseover', this.tip.show)
+    .on('mouseout', this.tip.hide)
     .merge(u)
     .transition(duration)
     .delay((d) => {

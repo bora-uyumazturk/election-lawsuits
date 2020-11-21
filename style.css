@@ -78,4 +78,9 @@ figure {
   font-size: 1rem;
 }
 
+.d3-tip {
+  pointer-events: none;
+  position: fixed;
+}
+
 <style>
