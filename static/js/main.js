@@ -18,7 +18,6 @@ function getCaseStates(data, date) {
    .groupBy('case_id')
    .map((x) => {return x[x.length - 1];})
    .flatten()
-   .orderBy(['date'], ['desc'])
    .value()
 }
 
@@ -42,12 +41,22 @@ function getEachCaseEnd(data) {
 }
 
 function getDistinctStates(data) {
-  console.log(data);
   return _.chain(data)
-    .orderBy(['state'], ['desc'])
+    .orderBy(['state'], ['asc'])
     .map((x) => {return x.state;})
     .uniq()
     .value()
+}
+
+function getLawsuitsFiledBetween(data, startDate, endDate) {
+  return _.chain(data)
+    .filter((x) => {
+      return ((x.action == 'Complaint Filed') &&
+        (x.date >= startDate) &&
+        (x.date < endDate));
+    })
+    .orderBy(['date'], ['asc'])
+    .value();
 }
 
 // function startAnimation(data) {
@@ -125,7 +134,7 @@ function main() {
       width, height,
       margin_left, margin_top);
 
-    // set functions that should run on each step
+    // show all filed lawsuits
     stepFunctions[0] = function() {
       graph.updateLabels([
         {category: 'Complaint Filed', label: 'Complaints Filed'},
@@ -133,43 +142,119 @@ function main() {
       graph.update(getEachCaseStart(lawsuitData), 2000, ['action']);
     };
 
+    // break out by state
     stepFunctions[1] = function() {
       states = getDistinctStates(lawsuitData);
       graph.initStateScale(states);
       graph.initStateLabels();
-      graph.update(getEachCaseStart(lawsuitData), 2000, ['action'], true, true);
+      graph.update(getEachCaseStart(lawsuitData), 2000, ['state', 'action'], true, true);
     }
 
+    // highlight lawsuits filed in the first week
     stepFunctions[2] = function() {
+      var cases = getLawsuitsFiledBetween(
+        lawsuitData,
+        '2020-11-03',
+        '2020-11-10'
+      );
+      graph.highlight(cases);
+    }
+
+    // show outcomes
+    stepFunctions[3] = function() {
+      var cases = getLawsuitsFiledBetween(
+        lawsuitData,
+        '2020-11-03',
+        '2020-11-10'
+      );
       graph.updateLabels([
         {category: 'Complaint Filed', label: 'Complaints Filed'},
         {category: 'Denied', label: 'Denied'},
         {category: 'Appealed', label: 'Appealed'},
         {category: 'Won', label: 'Won'}
       ]);
-      graph.update(getEachCaseEnd(lawsuitData), 2000, ['action', 'state'],
-        true, true);
+      graph.update(
+        getEachCaseEnd(
+          _.filter(lawsuitData, (x) => {
+            return inList(x.case_id, _.map(cases, (x) => x.case_id));
+          })
+        ), 2000, ['state', 'action'], true, true
+      )
     }
 
-    stepFunctions[3] = function() {
-      var caseIds = [
-        {case_id: '13'},
-        {case_id: '15'},
-        {case_id: '12'}
-      ];
-
-      graph.pulse(caseIds);
-    }
-
+    // highlight lawsuits from the second week
     stepFunctions[4] = function() {
-      var caseIds = [
-        {case_id: '13'},
-        {case_id: '15'},
-        {case_id: '12'}
-      ];
-
-      graph.unpulse(caseIds);
+      var cases = getLawsuitsFiledBetween(
+        lawsuitData,
+        '2020-11-10',
+        '2020-11-17'
+      );
+      graph.highlight(cases);
     }
+
+    // show outcomes
+    stepFunctions[5] = function() {
+      var cases = getLawsuitsFiledBetween(
+        lawsuitData,
+        '2020-11-10',
+        '2020-11-17'
+      );
+
+      graph.update(
+        getEachCaseEnd(
+          _.filter(lawsuitData, (x) => {
+            return inList(x.case_id, _.map(cases, (x) => x.case_id));
+          })
+        ), 2000, ['state', 'action'], true, true
+      )
+    }
+
+    // unhighlight all
+    stepFunctions[6] = function () {
+      graph.highlight([]);
+    }
+
+    // stepFunctions[2] = function() {
+    //   graph.updateLabels([
+    //     {category: 'Complaint Filed', label: 'Complaints Filed'},
+    //     {category: 'Denied', label: 'Denied'},
+    //     {category: 'Appealed', label: 'Appealed'},
+    //     {category: 'Won', label: 'Won'}
+    //   ]);
+    //   graph.update(getEachCaseEnd(lawsuitData), 2000, ['action', 'state'],
+    //     true, true);
+    // }
+    //
+    // stepFunctions[3] = function() {
+    //   var caseIds = [
+    //     {case_id: '13'},
+    //     {case_id: '15'},
+    //     {case_id: '12'}
+    //   ];
+    //
+    //   graph.pulse(caseIds);
+    // }
+    //
+    // stepFunctions[4] = function() {
+    //   var caseIds = [
+    //     {case_id: '13'},
+    //     {case_id: '15'},
+    //     {case_id: '12'}
+    //   ];
+    //
+    //   graph.unpulse(caseIds);
+    // }
+    //
+    // stepFunctions[5] = function() {
+    //   var startDate = '2020-11-03';
+    //   var endDate = '2020-11-10';
+    //   var cases = getLawsuitsFiledBetween(
+    //     lawsuitData,
+    //     startDate,
+    //     endDate);
+    //   console.log(cases);
+    //   graph.highlight(cases);
+    // }
 
     initScroller();
   });
