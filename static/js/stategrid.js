@@ -16,6 +16,8 @@ StateGrid = function(_parentElement, width, height, margin_left, margin_top) {
   this.boxWidth = boxWidth;
   this.horizontalGap = horizontalGap;
   this.verticalGap = verticalGap;
+  // this.groupId; // init case_id => group ID map
+  this.groupTracker = new GroupTracker();
   this.initVis();
 }
 
@@ -62,7 +64,6 @@ StateGrid.prototype.initVis = function () {
 
 StateGrid.prototype.initStateScale = function (states) {
   this.states = states;
-  console.log(states);
   yRanges = [];
   increment = this.height / (states.length + 2);
   for (var i = 0; i < states.length; i++) {
@@ -121,14 +122,20 @@ StateGrid.prototype.updateLabels = function (labels) {
     .style('opacity', 1.0);
 }
 
+StateGrid.prototype.updateGroupId = function (data, groupKeys) {
+  const ids = _.map(data, (x) => x.case_id);
+  const keys = _.map(data, (x) => {
+    return groupKeys.map((k) => x[k]);
+  });
+  this.groupTracker.batchUpdate(ids, keys);
+}
 
 StateGrid.prototype.update = function (
   data, duration, groupKeys=['action'], state=false, nodelay=false
 ) {
   var g = this.svg;
 
-  // get index within group for placement
-  var groupId = getIndexWithinGroup(data, groupKeys);
+  this.updateGroupId(data, groupKeys);
 
   // enter => update => exit
   var u = g.selectAll('circle')
@@ -136,6 +143,33 @@ StateGrid.prototype.update = function (
       return d.case_id;
     })
 
+  // existing points
+  u.transition(duration)
+    .delay((d) => {
+      if (nodelay) {
+        return 1000;
+      }
+      return 1000 + this.layout.row(this.groupTracker.get(d.case_id))*900 +
+        this.layout.col(this.groupTracker.get(d.case_id))*50;
+    })
+    .attr('cx', (d) => {
+      return this.xScale(d.action) + this.layout.x(this.groupTracker.get(d.case_id));
+    })
+    .attr('cy', (d) => {
+      var base = this.yScale(d.action) + this.layout.y(this.groupTracker.get(d.case_id));
+      if (state) {
+        return this.stateYScale(d.state);
+      }
+      return base;
+    })
+    .attr('fill', (d) => {
+      return this.fillScale(d.action);
+    })
+    .attr('stroke', (d) => {
+      return this.fillScale(d.action);
+    });
+
+  // new points
   u.enter()
     .append('circle')
     .attr('cx', (d) => {
@@ -161,7 +195,8 @@ StateGrid.prototype.update = function (
       d3.select("#hover")
         .html(
           `Case Name: ${d.case_name} </br>
-           Case ID: ${d.case_id}`)
+           Case ID: ${d.case_id} </br>
+           State: ${d.state}`)
         .style('opacity', 0.75)
         .style('top', `${parseFloat(cy) - this.r - 10}px`)
         .style('left', `${parseFloat(cx) + 3*this.r}px`);
@@ -173,20 +208,19 @@ StateGrid.prototype.update = function (
         .style('opacity', 0.0);
       d3.select(e.target).style('fill-opacity', 0.3);
     })
-    .merge(u)
     .transition(duration)
     .delay((d) => {
       if (nodelay) {
         return 1000;
       }
-      return 1000 + this.layout.row(groupId[d.case_id])*900 +
-        this.layout.col(groupId[d.case_id])*50;
+      return 1000 + this.layout.row(this.groupTracker.get(d.case_id))*900 +
+        this.layout.col(this.groupTracker.get(d.case_id))*50;
     })
     .attr('cx', (d) => {
-      return this.xScale(d.action) + this.layout.x(groupId[d.case_id]);
+      return this.xScale(d.action) + this.layout.x(this.groupTracker.get(d.case_id));
     })
     .attr('cy', (d) => {
-      var base = this.yScale(d.action) + this.layout.y(groupId[d.case_id]);
+      var base = this.yScale(d.action) + this.layout.y(this.groupTracker.get(d.case_id));
       if (state) {
         return this.stateYScale(d.state);
       }
@@ -201,8 +235,8 @@ StateGrid.prototype.update = function (
     .style('fill-opacity', 0.3)
     .attr('stroke-opacity', 1.0);
 
-    u.exit()
-      .remove();
+    // u.exit()
+    //   .remove();
 }
 
 StateGrid.prototype.pulse = function(cases) {
@@ -250,13 +284,24 @@ StateGrid.prototype.unpulse = function(cases) {
     .attr('stroke-opacity', 1.0);
 }
 
-function inList(elem, list) {
-  for (var newElem of list) {
-    if (elem == newElem) {
-      return true;
+StateGrid.prototype.highlight = function(cases) {
+  function highlight(d, i) {
+    var fillOpacity = 0.3;
+    var strokeOpacity = 1.0;
+
+    if (inList(d.case_id, _.map(cases, (x) => x.case_id))) {
+      fillOpacity = 1.0;
+      strokeOpacity = 1.0;
     }
+    d3.select(this)
+      .transition()
+      .duration(500)
+      .style('fill-opacity', fillOpacity)
+      .style('stroke-opacity', strokeOpacity);
   }
-  return false;
+
+  this.svg.selectAll('circle')
+    .each(highlight)
 }
 
 // return function computing x and y position for
@@ -292,7 +337,8 @@ function getIndexWithinGroup(data, keys) {
 
   var grouped = _.groupBy(data, keyFunction);
 
-  for (const idList of Object.values(grouped)) {
+  for (var idList of Object.values(grouped)) {
+    idList = _.orderBy(idList, ['state', 'date'], ['asc']);
     for (var i = 0; i < idList.length; i++) {
       result[idList[i].case_id] = i;
     }
