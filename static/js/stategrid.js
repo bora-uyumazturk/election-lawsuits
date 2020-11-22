@@ -161,13 +161,15 @@ StateGrid.prototype.update = function (
       d3.select("#hover")
         .html(d.case_name)
         .style('opacity', 0.75)
-        .style('top', `${cy}px`)
-        .style('left', `${cx}px`);
+        .style('top', `${parseFloat(cy) - this.r - 10}px`)
+        .style('left', `${parseFloat(cx) + 3*this.r}px`);
+      d3.select(e.target).style('fill-opacity', 1.0);
     })
     .on('mouseout', (e, d) => {
       d3.select("#hover")
         .html('')
         .style('opacity', 0.0);
+      d3.select(e.target).style('fill-opacity', 0.3);
     })
     .merge(u)
     .transition(duration)
