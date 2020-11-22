@@ -91,4 +91,19 @@ figure {
   border-radius: 5px
 }
 
+.invisible {
+  stroke-opacity: 0.0;
+  fill-opacity: 0.0;
+}
+
+.normal {
+  stroke-opacity: 1.0;
+  fill-opacity: 0.3;
+}
+
+.highlight {
+  stroke-opacity: 1.0;
+  fill-opacity: 1.0;
+}
+
 <style>
