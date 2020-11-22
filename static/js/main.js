@@ -151,6 +151,26 @@ function main() {
         true, true);
     }
 
+    stepFunctions[3] = function() {
+      var caseIds = [
+        {case_id: '13'},
+        {case_id: '15'},
+        {case_id: '12'}
+      ];
+
+      graph.pulse(caseIds);
+    }
+
+    stepFunctions[4] = function() {
+      var caseIds = [
+        {case_id: '13'},
+        {case_id: '15'},
+        {case_id: '12'}
+      ];
+
+      graph.unpulse(caseIds);
+    }
+
     initScroller();
   });
 }
