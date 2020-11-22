@@ -159,7 +159,9 @@ StateGrid.prototype.update = function (
       cx = d3.select(e.target).attr('cx');
       cy = d3.select(e.target).attr('cy');
       d3.select("#hover")
-        .html(d.case_name)
+        .html(
+          `Case Name: ${d.case_name} </br>
+           Case ID: ${d.case_id}`)
         .style('opacity', 0.75)
         .style('top', `${parseFloat(cy) - this.r - 10}px`)
         .style('left', `${parseFloat(cx) + 3*this.r}px`);
@@ -201,6 +203,60 @@ StateGrid.prototype.update = function (
 
     u.exit()
       .remove();
+}
+
+StateGrid.prototype.pulse = function(cases) {
+  // make desired cases pulse
+
+  // borrowed from https://observablehq.com/@bumbeishvili/pulse
+  function repeatPulse(d, i) {
+    var circle = d3.select(this);
+    (function repeat() {
+      circle
+        .transition()
+        .ease(d3.easeLinear)
+        .duration(250)
+        .attr('stroke-opacity', 1.0)
+        .attr('stroke-width', 1.0)
+        .transition()
+        .ease(d3.easeLinear)
+        .duration(900)
+        .attr('stroke-width', 10)
+        .attr('stroke-opacity', 0.0)
+        .transition()
+        .ease(d3.easeLinear)
+        .duration(10)
+        .attr('stroke-width', 1.0)
+        .attr('stroke-opacity', 0.0)
+        .on('end', repeat);
+    })();
+  }
+
+  this.svg.selectAll('circle')
+    .filter((d, i) => {
+      return inList(d.case_id, _.map(cases, (x) => x.case_id));
+    })
+    .each(repeatPulse);
+}
+
+StateGrid.prototype.unpulse = function(cases) {
+  this.svg.selectAll('circle')
+    .filter((d, i) => {
+      return inList(d.case_id, _.map(cases, (x) => x.case_id));
+    })
+    .transition()
+    .duration(500)
+    .attr('stroke-width', 1.0)
+    .attr('stroke-opacity', 1.0);
+}
+
+function inList(elem, list) {
+  for (var newElem of list) {
+    if (elem == newElem) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // return function computing x and y position for
