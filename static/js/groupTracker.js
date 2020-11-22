@@ -32,8 +32,7 @@ GroupTracker.prototype.minAvailable = function(key) {
       occupiedIndices.push(this.IDtoIndex[elem]);
     }
   }
-  occupiedIndices.sort((a, b) => a > b);
-  console.log(occupiedIndices);
+  occupiedIndices.sort((a, b) => a - b);
   var result = 0;
   for (var index of occupiedIndices) {
     if (result == index) {

@@ -131,7 +131,7 @@ StateGrid.prototype.updateGroupId = function (data, groupKeys) {
 }
 
 StateGrid.prototype.update = function (
-  data, duration, groupKeys=['action'], state=false, nodelay=false
+  data, duration, groupKeys=['action'], state=false, delayType=''
 ) {
   var g = this.svg;
 
@@ -146,11 +146,19 @@ StateGrid.prototype.update = function (
   // existing points
   u.transition(duration)
     .delay((d) => {
-      if (nodelay) {
+      // determine delay type
+      if (delayType == '') {
         return 1000;
       }
-      return 1000 + this.layout.row(this.groupTracker.get(d.case_id))*900 +
-        this.layout.col(this.groupTracker.get(d.case_id))*50;
+      if (delayType == 'row') {
+        return 1000 + this.layout.row(this.groupTracker.get(d.case_id))*900 +
+          this.layout.col(this.groupTracker.get(d.case_id))*50;
+      }
+
+      if (delayType == 'state') {
+        return 1000 +
+          this.groupTracker.get(d.case_id)*50;
+      }
     })
     .attr('cx', (d) => {
       return this.xScale(d.action) + this.layout.x(this.groupTracker.get(d.case_id));
@@ -158,7 +166,7 @@ StateGrid.prototype.update = function (
     .attr('cy', (d) => {
       var base = this.yScale(d.action) + this.layout.y(this.groupTracker.get(d.case_id));
       if (state) {
-        return this.stateYScale(d.state);
+        return this.stateYScale(d.state) + this.layout.y(this.groupTracker.get(d.case_id));
       }
       return base;
     })
@@ -211,11 +219,18 @@ StateGrid.prototype.update = function (
     })
     .transition(duration)
     .delay((d) => {
-      if (nodelay) {
+      if (delayType == '') {
         return 1000;
       }
-      return 1000 + this.layout.row(this.groupTracker.get(d.case_id))*900 +
-        this.layout.col(this.groupTracker.get(d.case_id))*50;
+      if (delayType == 'row') {
+        return 1000 + this.layout.row(this.groupTracker.get(d.case_id))*900 +
+          this.layout.col(this.groupTracker.get(d.case_id))*50;
+      }
+
+      if (delayType == 'state') {
+        return 1000 +
+          this.groupTracker.get(d.case_id)*50;
+      }
     })
     .attr('cx', (d) => {
       return this.xScale(d.action) + this.layout.x(this.groupTracker.get(d.case_id));
