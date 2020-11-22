@@ -18,7 +18,7 @@
 
     <section id='scrolly'>
 
-      <article>
+      <article id='article-text'>
         <div class='spacer'></div>
         <div class='step' data-step='1'>
           <p>Hi, here is some initial information.</p>
@@ -34,14 +34,14 @@
         </div>
       </article>
 
-      <figure>
+      <figure id="chart-wrapper">
         <div id='date-label'></div>
         <div id='chart-area' style="width:100%;"></div>
+        <div class="tooltip" id='hover'><div>
       </figure>
-
-
     </section>
   </main>
+
   <!-- External JS Libraries -->
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>

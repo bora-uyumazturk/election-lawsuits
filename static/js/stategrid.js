@@ -76,11 +76,9 @@ StateGrid.prototype.initStateScale = function (states) {
 
 StateGrid.prototype.initStateLabels = function () {
   // init labels
-  // this.svg.append("g")
-  //   .attr("transform", "translate(0, 0)")
-  var g = this.svg.append('g');
+  this.stateGroup = this.svg.append('g');
 
-  g.selectAll("text")
+  this.stateGroup.selectAll("text")
     // .data(["Denied", "Won", "Appealed", "Complaint Filed"])
     .data(this.states)
     .enter()
@@ -131,7 +129,6 @@ StateGrid.prototype.update = function (
 
   // get index within group for placement
   var groupId = getIndexWithinGroup(data, groupKeys);
-  console.log(groupId);
 
   // enter => update => exit
   var u = g.selectAll('circle')
@@ -158,6 +155,22 @@ StateGrid.prototype.update = function (
       return this.fillScale(d.action);
     })
     .attr('stroke-opacity', 0.0)
+    .on('mouseover', (e, d) => {
+      cx = d3.select(e.target).attr('cx');
+      cy = d3.select(e.target).attr('cy');
+      d3.select("#hover")
+        .html(d.case_name)
+        .style('opacity', 0.75)
+        .style('top', `${parseFloat(cy) - this.r - 10}px`)
+        .style('left', `${parseFloat(cx) + 3*this.r}px`);
+      d3.select(e.target).style('fill-opacity', 1.0);
+    })
+    .on('mouseout', (e, d) => {
+      d3.select("#hover")
+        .html('')
+        .style('opacity', 0.0);
+      d3.select(e.target).style('fill-opacity', 0.3);
+    })
     .merge(u)
     .transition(duration)
     .delay((d) => {
