@@ -86,7 +86,6 @@ function getLawsuitsFiledBetween(data, startDate, endDate) {
 function handleStepEnter(response) {
   console.log(response);
   // response = { element, direction, index }
-
   step.classed('is-active', function(d, i) {
     return i === response.index;
   });
