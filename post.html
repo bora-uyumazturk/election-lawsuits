@@ -18,7 +18,7 @@
 
     <section id='scrolly'>
 
-      <article>
+      <article id='article-text'>
         <div class='spacer'></div>
         <div class='step' data-step='1'>
           <p>Hi, here is some initial information.</p>
@@ -34,10 +34,10 @@
         </div>
       </article>
 
-      <figure>
+      <figure id="chart-wrapper">
         <div id='date-label'></div>
-        <div id='chart-area' style="width:100%;">
-        </div>
+        <div id='chart-area' style="width:100%;"></div>
+        <div class="tooltip" id='hover'><div>
       </figure>
     </section>
   </main>
@@ -47,8 +47,6 @@
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
   <script src="https://unpkg.com/intersection-observer"></script>
   <script src="https://unpkg.com/scrollama"></script>
-  <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bumbeishvili/d3-tip-for-v6@4/d3-tip.min.css">
 
   <!-- Custom JS -->
   <script type='text/javascript' src="static/js/scroll-utils.js"></script>

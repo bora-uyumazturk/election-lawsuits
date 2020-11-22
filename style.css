@@ -21,7 +21,7 @@ text {
 }
 
 #scrolly {
-  position: relative;
+  position: absolute;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -78,9 +78,17 @@ figure {
   font-size: 1rem;
 }
 
-.d3-tip {
-  pointer-events: none;
-  position: fixed;
+.tooltip {
+  box-sizing: border-box;
+  opacity: 0.0;
+  position: absolute;
+  z-index: 1000;
+  font-size: 9px;
+  border: 1px;
+  background: #fcfcfc;
+  border-color: black;
+  padding: 5px;
+  border-width: 5px;
 }
 
 <style>
