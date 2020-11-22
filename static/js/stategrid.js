@@ -16,8 +16,8 @@ StateGrid = function(_parentElement, width, height, margin_left, margin_top) {
   this.boxWidth = boxWidth;
   this.horizontalGap = horizontalGap;
   this.verticalGap = verticalGap;
-  // this.groupId; // init case_id => group ID map
   this.groupTracker = new GroupTracker();
+  this.highlighted = [];
   this.initVis();
 }
 
@@ -184,11 +184,10 @@ StateGrid.prototype.update = function (
     .attr('fill', (d) => {
       return this.fillScale(d.action);
     })
-    .style('fill-opacity', 0.0)
     .attr('stroke', (d) => {
       return this.fillScale(d.action);
     })
-    .attr('stroke-opacity', 0.0)
+    .attr('class', 'invisible')
     .on('mouseover', (e, d) => {
       cx = d3.select(e.target).attr('cx');
       cy = d3.select(e.target).attr('cy');
@@ -200,13 +199,15 @@ StateGrid.prototype.update = function (
         .style('opacity', 0.75)
         .style('top', `${parseFloat(cy) - this.r - 10}px`)
         .style('left', `${parseFloat(cx) + 3*this.r}px`);
-      d3.select(e.target).style('fill-opacity', 1.0);
+      d3.select(e.target).attr('class', 'highlight');
     })
     .on('mouseout', (e, d) => {
       d3.select("#hover")
         .html('')
         .style('opacity', 0.0);
-      d3.select(e.target).style('fill-opacity', 0.3);
+      if (!inList(d.case_id, this.highlighted)) {
+        d3.select(e.target).attr('class', 'normal');
+      }
     })
     .transition(duration)
     .delay((d) => {
@@ -232,8 +233,7 @@ StateGrid.prototype.update = function (
     .attr('stroke', (d) => {
       return this.fillScale(d.action);
     })
-    .style('fill-opacity', 0.3)
-    .attr('stroke-opacity', 1.0);
+    .attr('class', 'normal');
 
     // u.exit()
     //   .remove();
@@ -286,22 +286,21 @@ StateGrid.prototype.unpulse = function(cases) {
 
 StateGrid.prototype.highlight = function(cases) {
   function highlight(d, i) {
-    var fillOpacity = 0.3;
-    var strokeOpacity = 1.0;
+    var newClass = 'normal'
 
     if (inList(d.case_id, _.map(cases, (x) => x.case_id))) {
-      fillOpacity = 1.0;
-      strokeOpacity = 1.0;
+      newClass = 'highlight';
     }
     d3.select(this)
       .transition()
       .duration(500)
-      .style('fill-opacity', fillOpacity)
-      .style('stroke-opacity', strokeOpacity);
+      .attr('class', newClass);
   }
 
   this.svg.selectAll('circle')
     .each(highlight)
+
+  this.highlighted = _.map(cases, (x) => x.case_id);
 }
 
 // return function computing x and y position for
@@ -325,24 +324,4 @@ function gridLayout(width, itemWidth, itemHeight, horizontalPadding, verticalPad
       return (itemHeight + verticalPadding)*row;
     }
   }
-}
-
-
-function getIndexWithinGroup(data, keys) {
-  var result = {};
-
-  var keyFunction = (d) => {
-    return keys.map((k) => d[k]);
-  };
-
-  var grouped = _.groupBy(data, keyFunction);
-
-  for (var idList of Object.values(grouped)) {
-    idList = _.orderBy(idList, ['state', 'date'], ['asc']);
-    for (var i = 0; i < idList.length; i++) {
-      result[idList[i].case_id] = i;
-    }
-  }
-
-  return result;
 }
