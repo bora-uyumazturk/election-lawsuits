@@ -1,12 +1,14 @@
-LawsuitTimeline = function(_parentElement, lawsuitData, xScale, y, r) {
+LawsuitTimeline = function(_parentElement, lawsuitData, lawsuitMetadata, xScale, y, r) {
   this.parentElement = _parentElement;
   this.xScale = xScale;
   this.y = y;
-  this.timeParser = d3.timeParse("%Y-%m-%d");
+  this.timeParser = d3.timeParse("%_m/%_d/%Y");
 
-  this.state = lawsuitData[0].state;
-  this.case_name = lawsuitData[0].case_name;
-  this.case_id = lawsuitData[0].case_id;
+  this.state = lawsuitMetadata['State of origin'];
+  this.case_name = lawsuitMetadata['Case name'];
+  this.case_id = lawsuitMetadata['case_id'];
+  this.outcome = lawsuitMetadata['Outcome'];
+
 
   this.r = r;
 
@@ -15,9 +17,6 @@ LawsuitTimeline = function(_parentElement, lawsuitData, xScale, y, r) {
 }
 
 LawsuitTimeline.prototype.initVis = function () {
-
-  console.log(this.state);
-  console.log(this.case_name);
 
   var vis = this;
 
@@ -29,7 +28,8 @@ LawsuitTimeline.prototype.initVis = function () {
         .html(
           `Case Name: ${this.case_name} </br>
            Case ID: ${this.case_id} </br>
-           State: ${this.state}`)
+           State: ${this.state} </br>
+           Outcome: ${this.outcome}`)
         .style('opacity', 0.75)
         .style('top', `${parseFloat(cy)}px`)
         .style('left', `${parseFloat(cx) + 10}px`);
@@ -45,10 +45,10 @@ LawsuitTimeline.prototype.initVis = function () {
 LawsuitTimeline.prototype.update = function (lawsuitEvents) {
   var g = this.g;
 
-  const [minDate, maxDate] = getRange(lawsuitEvents, 'date');
+  const [minDate, maxDate] = d3.extent(lawsuitEvents.map(x => this.timeParser(x.date)))
 
-  let x1 = this.xScale(this.timeParser(minDate))
-  let x2 = this.xScale(this.timeParser(maxDate))
+  let x1 = this.xScale(minDate);
+  let x2 = this.xScale(maxDate);
 
   g.append("rect")
     .attr("fill", "grey")
