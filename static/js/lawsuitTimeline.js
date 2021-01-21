@@ -8,6 +8,8 @@ LawsuitTimeline = function(_parentElement, lawsuitData, lawsuitMetadata, xScale,
   this.case_name = lawsuitMetadata['Case name'];
   this.case_id = lawsuitMetadata['case_id'];
   this.outcome = lawsuitMetadata['Outcome'];
+  this.court = lawsuitMetadata['Court'];
+  this.topic = lawsuitMetadata['Topic'];
 
 
   this.r = r;
@@ -29,6 +31,8 @@ LawsuitTimeline.prototype.initVis = function () {
           `Case Name: ${this.case_name} </br>
            Case ID: ${this.case_id} </br>
            State: ${this.state} </br>
+           Court: ${this.court} </br>
+           Topic: ${this.topic} </br>
            Outcome: ${this.outcome}`)
         .style('opacity', 0.75)
         .style('top', `${parseFloat(cy)}px`)
