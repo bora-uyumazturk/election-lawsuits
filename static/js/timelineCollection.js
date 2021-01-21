@@ -59,11 +59,13 @@ TimelineCollection.prototype.plotTimelines = function (data, metadata) {
 
   let parser = this.timeParser;
 
+  console.log(data);
   data = _.sortBy(data,
     [
-      function(o) { return parser(o[0].date); },
-      function(o) { return parser(o[o.length - 1].date); }
-    ]);
+      function(o) { return d3.extent(o.map( x => parser(x.date)))[0]; },
+      function(o) { return d3.extent(o.map( x => parser(x.date)))[1]; }
+    ]
+  );
 
   let getMetadata = function(id, d) {
     return _.filter(d, {'case_id': id})[0]
