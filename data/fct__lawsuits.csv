@@ -1,10 +1,14 @@
 case_id,date,action
 1,11/7/2020,Filed
+1,11/13/2020,Dismissed
 2,11/20/2020,Filed
 3,12/22/2020,Filed
 4,11/4/2020,Filed
+4,11/5/2020,Dismissed
 5,12/31/2020,Filed
+5,1/7/2021,Voluntary Dismissal
 6,12/4/2020,Filed
+6,1/7/2021,Voluntary Dismissal
 7,11/4/2020,Filed
 8,11/6/2020,Filed
 9,11/11/2020,Filed
