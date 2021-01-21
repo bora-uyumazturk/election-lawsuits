@@ -1,15 +1,17 @@
-TimelineCollection = function(_parentElement, data, height, width, padding, r) {
+TimelineCollection = function(_parentElement, dim_lawsuits, fct_lawsuits, height, width, padding, r) {
   this.parentElement = _parentElement;
   this.height = height;
   this.width = width;
   this.padding = padding;
   this.r = r;
-  this.timeParser = d3.timeParse("%Y-%m-%d");
+  // this.timeParser = d3.timeParse("%Y-%m-%d");
+  this.timeParser = d3.timeParse("%_m/%_d/%Y");
   this.timelines = [];
   this.initVis();
-  console.log(data);
-  this.initScales(data);
-  this.plotTimelines(data);
+  console.log(dim_lawsuits);
+  console.log(fct_lawsuits);
+  this.initScales(fct_lawsuits);
+  this.plotTimelines(fct_lawsuits, dim_lawsuits);
 }
 
 TimelineCollection.prototype.initVis = function (data) {
@@ -27,15 +29,11 @@ TimelineCollection.prototype.initVis = function (data) {
 }
 
 TimelineCollection.prototype.initScales = function(data) {
-  const [minDate, maxDate] = getRange(data, 'date');
-  console.log(maxDate);
-
   // initialize xScale
   this.xScale = d3.scaleTime()
     .domain(
-      [this.timeParser(minDate),
-       this.timeParser(maxDate)]
-     )
+      d3.extent(data.map(x => this.timeParser(x.date)))
+    )
      .range([this.padding, this.width - 2*this.padding])
      .nice();
 
@@ -52,19 +50,26 @@ TimelineCollection.prototype.initScales = function(data) {
     .range([0, this.height]);
 
   console.log(data.length);
-  console.log(this.yScale(31));
+  console.log(this.yScale(26));
 }
 
-TimelineCollection.prototype.plotTimelines = function (data) {
+TimelineCollection.prototype.plotTimelines = function (data, metadata) {
 
   data = formatCases(data);
 
+  let parser = this.timeParser;
+
   data = _.sortBy(data,
     [
-      function(o) { return o[0].date; },
-      function(o) { return o[o.length - 1].date }
+      function(o) { return parser(o[0].date); },
+      function(o) { return parser(o[o.length - 1].date); }
     ]);
-  console.log(data);
+
+  let getMetadata = function(id, d) {
+    return _.filter(d, {'case_id': id})[0]
+  }
+
+  console.log(getMetadata("1", metadata));
 
   this.timelines = Object.fromEntries(
     Object.keys(data).map(
@@ -73,6 +78,7 @@ TimelineCollection.prototype.plotTimelines = function (data) {
         new LawsuitTimeline(
           "#timeline-collection",
           data[index],
+          getMetadata(data[index][0].case_id, metadata),
           this.xScale,
           this.yScale(index),
           this.r)
